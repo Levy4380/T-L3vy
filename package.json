@@ -1,11 +1,12 @@
 {
-    "name": "laravel-react-app",
+    "name": "t-l3vy",
     "version": "1.0.0",
     "private": true,
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "build:vercel": "npm run build && mkdir -p dist && cp -r public/* dist/ && mkdir -p dist/api && cp api/index.php dist/api/ && echo 'dist directory created'",
         "preview": "vite preview"
     },
     "devDependencies": {

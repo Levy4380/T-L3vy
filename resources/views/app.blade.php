@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }}</title>
     @if(app()->environment('local'))
-        <script type="module" src="http://localhost:5173/@vite/client"></script>
+        @php
+            $viteClient = '@vite';
+        @endphp
+        <script>
+            // Initialize React Refresh globals BEFORE any Vite scripts load
+            window.$RefreshReg$ = () => {};
+            window.$RefreshSig$ = () => (type) => type;
+        </script>
+        <script type="module" src="http://localhost:5173/{{ $viteClient }}/client"></script>
         <script type="module" src="http://localhost:5173/resources/js/app.tsx"></script>
     @else
         @php
@@ -13,7 +21,7 @@
             $entry = $manifest['resources/js/app.tsx'] ?? null;
         @endphp
         @if($entry)
-            <link rel="stylesheet" href="{{ asset('build/' . $entry['css'][0] ?? '') }}">
+            <link rel="stylesheet" href="{{ asset('build/' . ($entry['css'][0] ?? '')) }}">
             <script type="module" src="{{ asset('build/' . $entry['file']) }}"></script>
         @endif
     @endif

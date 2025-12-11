@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+console.log('Script started loading');
+
+import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import axios from 'axios';
-import Login from './components/Login';
 import Register from './components/Register';
+import Login from './components/Login';
 import HelloWorld from './components/HelloWorld';
+
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = '/api';
@@ -91,6 +94,17 @@ function App() {
 
     return <HelloWorld user={user} onLogout={handleLogout} />;
 }
+// function App() {
+//     return (
+//         <div>
+//             <h1>Hello World</h1>
+//         </div>
+//     );
+// }
+// Export App component for potential use elsewhere
+export default App;
+
+console.log('App component rendered');
 
 const container = document.getElementById('app');
 if (container) {

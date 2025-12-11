@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "buildCommand": "composer install --no-dev --optimize-autoloader && npm install && npm run build:vercel",
+  "outputDirectory": "dist",
+  "installCommand": "composer install --no-dev --optimize-autoloader && npm install",
+  "builds": [
+    {
+      "src": "dist/api/index.php",
+      "use": "@vercel/php"
+    },
+    {
+      "src": "dist/index.php",
+      "use": "@vercel/php"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/build/(.*)",
+      "dest": "/build/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
+      "dest": "/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000"
+      }
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.php"
+    }
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false"
+  }
+}
+
