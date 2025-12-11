@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "bash scripts/install-php.sh && npm install && npm run build:vercel",
+  "buildCommand": "npm install && npm run build:vercel",
   "outputDirectory": "dist",
-  "installCommand": "bash scripts/install-php.sh && npm install",
+  "installCommand": "npm install",
   "builds": [
     {
       "src": "dist/index.php",

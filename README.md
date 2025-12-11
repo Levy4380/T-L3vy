@@ -173,19 +173,50 @@ Note: This is not recommended for production use.
 
 ## Deployment to Vercel
 
-This Laravel monorepo is configured to deploy on Vercel with PHP support.
+This Laravel monorepo is configured to deploy on Vercel with PHP support using GitHub Actions.
 
-### Prerequisites
+### Why GitHub Actions?
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Ensure you have a Vercel account
+Vercel's build environment doesn't have PHP/Composer available, so we use GitHub Actions to:
+1. Install PHP and Composer
+2. Install Composer dependencies
+3. Build the project
+4. Deploy to Vercel
 
-### Configuration
+### Setup GitHub Actions
 
-The project includes:
-- `vercel.json` - Vercel configuration for Laravel + PHP
-- `api/index.php` - API endpoint handler
-- `.vercelignore` - Files to exclude from deployment
+1. **Get Vercel credentials:**
+   ```bash
+   # Install Vercel CLI
+   npm i -g vercel
+   
+   # Login and get tokens
+   vercel login
+   vercel link
+   ```
+
+2. **Add GitHub Secrets:**
+   Go to your GitHub repository → Settings → Secrets and variables → Actions, and add:
+   - `VERCEL_TOKEN` - Get from https://vercel.com/account/tokens
+   - `VERCEL_ORG_ID` - Run `vercel whoami` or check Vercel dashboard
+   - `VERCEL_PROJECT_ID` - Found in Vercel project settings
+
+3. **Push to main branch:**
+   The workflow will automatically build and deploy on push to `main`.
+
+### Manual Deploy
+
+If you need to deploy manually:
+
+```bash
+# Build locally first
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build:vercel
+
+# Then deploy
+vercel --prod
+```
 
 ### Environment Variables
 
@@ -201,27 +232,24 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 - `DB_USERNAME` - Database username
 - `DB_PASSWORD` - Database password
 
-### Build Settings in Vercel
+### Alternative: Direct Vercel Deploy (Requires vendor/ in repo)
 
-In Vercel Dashboard → Project Settings → General:
+If you want to deploy directly from Vercel without GitHub Actions:
 
-- **Framework Preset**: Other
-- **Build Command**: `composer install --no-dev --optimize-autoloader && npm install && npm run build && php artisan config:cache && php artisan route:cache && php artisan view:cache`
-- **Output Directory**: Leave empty (handled by vercel.json)
-- **Install Command**: `composer install --no-dev --optimize-autoloader && npm install`
+1. **Temporarily remove vendor/ from .gitignore:**
+   ```bash
+   sed -i '/^\/vendor$/d' .gitignore
+   ```
 
-### Deploy
+2. **Install and commit vendor/:**
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   git add vendor/ .gitignore
+   git commit -m "Add vendor for Vercel deployment"
+   git push
+   ```
 
-```bash
-# Login to Vercel
-vercel login
-
-# Deploy
-vercel
-
-# Or deploy to production
-vercel --prod
-```
+3. **Deploy from Vercel** - The build should work now.
 
 ### Important Notes
 
@@ -229,6 +257,13 @@ vercel --prod
 - Database connections should use connection pooling or external database services
 - File storage should use external services (S3, etc.) as Vercel's filesystem is read-only except for `/tmp`
 - Session storage should use database or Redis, not file-based sessions
+
+### Alternative Hosting Services
+
+If Vercel proves difficult, consider:
+- **Railway** (railway.app) - Native PHP/Laravel support
+- **Render** (render.com) - Native PHP/Laravel support
+- **Laravel Forge** - Specialized Laravel hosting
 
 ## Development
 

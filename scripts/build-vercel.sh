@@ -36,24 +36,23 @@ cp -r resources dist/ 2>/dev/null || true
 cp -r routes dist/ 2>/dev/null || true
 cp -r storage dist/ 2>/dev/null || true
 
-# Vendor directory - install if PHP/Composer is available, otherwise must exist
+# Vendor directory - must be built by GitHub Actions or exist in repo
 if [ -d "vendor" ]; then
-  echo "📦 Copying existing vendor directory..."
+  echo "📦 Copying vendor directory..."
   cp -r vendor dist/ 2>/dev/null || true
-elif command -v php &> /dev/null && (command -v composer &> /dev/null || [ -f "composer.phar" ]); then
-  echo "📦 Installing Composer dependencies..."
-  if command -v composer &> /dev/null; then
-    composer install --no-dev --optimize-autoloader --no-interaction --quiet
-  elif [ -f "composer.phar" ]; then
-    php composer.phar install --no-dev --optimize-autoloader --no-interaction --quiet
-  fi
-  cp -r vendor dist/ 2>/dev/null || true
+  echo "✅ vendor/ copied to dist/"
 else
-  echo "❌ ERROR: vendor/ directory not found and PHP/Composer not available!"
-  echo "   Solutions:"
-  echo "   1. Install PHP during build (see scripts/install-php.sh)"
-  echo "   2. Use a different hosting service that supports PHP (Railway, Render, Laravel Forge)"
-  echo "   3. Pre-build and commit vendor/ (not recommended)"
+  echo "❌ ERROR: vendor/ directory not found!"
+  echo ""
+  echo "   This project uses GitHub Actions to build. The workflow should:"
+  echo "   1. Install PHP and Composer"
+  echo "   2. Run 'composer install --no-dev'"
+  echo "   3. Build the project"
+  echo "   4. Deploy to Vercel"
+  echo ""
+  echo "   If deploying directly from Vercel (without GitHub Actions),"
+  echo "   you need to commit vendor/ to the repository."
+  echo ""
   exit 1
 fi
 
