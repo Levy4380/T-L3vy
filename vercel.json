@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install && npm run build:vercel",
+  "buildCommand": "bash scripts/install-php.sh && npm install && npm run build:vercel",
   "outputDirectory": "dist",
-  "installCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install",
+  "installCommand": "bash scripts/install-php.sh && npm install",
   "builds": [
     {
       "src": "dist/index.php",
@@ -14,6 +14,9 @@
     }
   ],
   "routes": [
+    {
+      "handle": "filesystem"
+    },
     {
       "src": "/build/(.*)",
       "dest": "/build/$1",
