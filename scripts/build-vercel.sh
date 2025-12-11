@@ -37,4 +37,29 @@ sed -i.bak 's|__DIR__."/../bootstrap|__DIR__."/bootstrap|g' dist/index.php 2>/de
 sed -i.bak 's|__DIR__."/../vendor|__DIR__."/../vendor|g' dist/api/index.php 2>/dev/null || sed -i '' 's|__DIR__."/../vendor|__DIR__."/../vendor|g' dist/api/index.php 2>/dev/null || true
 sed -i.bak 's|__DIR__."/../bootstrap|__DIR__."/../bootstrap|g' dist/api/index.php 2>/dev/null || sed -i '' 's|__DIR__."/../bootstrap|__DIR__."/../bootstrap|g' dist/api/index.php 2>/dev/null || true
 
+# Verify critical files exist
+echo "🔍 Verifying build..."
+if [ -f "dist/index.php" ]; then
+  echo "✅ dist/index.php exists"
+else
+  echo "❌ ERROR: dist/index.php not found!"
+  exit 1
+fi
+
+if [ -d "dist/vendor" ]; then
+  echo "✅ dist/vendor exists"
+else
+  echo "❌ ERROR: dist/vendor not found!"
+  exit 1
+fi
+
+if [ -d "dist/bootstrap" ]; then
+  echo "✅ dist/bootstrap exists"
+else
+  echo "❌ ERROR: dist/bootstrap not found!"
+  exit 1
+fi
+
 echo "✅ Build completed. dist/ directory ready."
+echo "📁 dist/ contents:"
+ls -la dist/ | head -10
