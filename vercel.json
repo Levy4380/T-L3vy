@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "composer install --no-dev --optimize-autoloader && npm install && npm run build:vercel",
+  "buildCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install && npm run build:vercel",
   "outputDirectory": "dist",
-  "installCommand": "composer install --no-dev --optimize-autoloader && npm install",
+  "installCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install",
   "builds": [
     {
       "src": "dist/api/index.php",
