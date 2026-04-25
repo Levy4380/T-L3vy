@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Laravel React TypeScript Application
 
 A simple Laravel application with React TypeScript frontend using Vite, following MVC architecture with Repository pattern.
@@ -272,3 +273,6 @@ If Vercel proves difficult, consider:
 - Repository pattern is implemented in `app/Repositories/`
 - Database migrations are in `database/migrations/`
 
+=======
+# l3vy
+>>>>>>> 4265f8b (first commit)
