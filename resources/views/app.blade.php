@@ -26,8 +26,9 @@
         @endif
     @endif
 </head>
-<body>
-    <div id="app"></div>
+<body class="min-h-screen">
+    <div id="app">
+    </div>
 </body>
 </html>
 

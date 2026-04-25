@@ -1,114 +1,106 @@
-console.log('Script started loading');
-
-import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate,
+    Outlet,
+    useLocation,
+    type RouteProps,
+} from 'react-router-dom';
 import axios from 'axios';
-import Register from './components/Register';
-import Login from './components/Login';
-import HelloWorld from './components/HelloWorld';
-
+import '../styles/styles.css';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AutenticatedLayout from './layouts/AutenticatedLayout';
+import UnantenticatedLayout from './layouts/UnantenticatedLayout';
+import Pagina1 from './pages/Pagina1';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Index from './pages/Index';
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = '/api';
 
-interface User {
-    id: number;
-    username: string;
+/**
+ * Layout de ruta: si no hay sesión, manda a /login. Los hijos son las pantallas con Outlet.
+ * `isAuthenticated` lo pasás vos desde arriba (estado de App) — a propósito, sin context.
+ */
+function RequireAuth({ isAuthenticated }: { isAuthenticated: boolean }) {
+    const location = useLocation();
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace state={{ from: location }} />;
+    }
+    return <Outlet />;
+}
+
+function NotRequiredAuth({ isAuthenticated }: { isAuthenticated: boolean }) {
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+    return <UnantenticatedLayout />;
 }
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<User | null>(null);
-    const [showRegister, setShowRegister] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
+    const {isAuthenticated, sessionChecked, login, register, logout} =
+        useAuth();
+    const publicRoutes: RouteProps[] = [
+        { path: '/login', element: <LoginPage onLogin={login} /> },
+        { path: '/register', element: <RegisterPage onRegister={register} /> },
+    ];
+    const privateRoutes: RouteProps[] = [
+        {
+            index: true,
+            element: <Index />,
+        },
+        { path: 'pagina1', element: <Pagina1 /> },
+    ];
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const checkAuth = async () => {
-        try {
-            const response = await axios.get('/check-auth');
-            if (response.data.authenticated) {
-                setIsAuthenticated(true);
-                setUser(response.data.user);
-            }
-        } catch (error) {
-            setIsAuthenticated(false);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLogin = async (username: string, password: string) => {
-        try {
-            const response = await axios.post('/login', { username, password });
-            if (response.data.success) {
-                setIsAuthenticated(true);
-                setUser(response.data.user);
-            }
-        } catch (error: any) {
-            throw error.response?.data || { message: 'Login failed' };
-        }
-    };
-
-    const handleRegister = async (username: string, password: string) => {
-        try {
-            const response = await axios.post('/register', { username, password });
-            if (response.data.success) {
-                // Auto login after registration
-                await handleLogin(username, password);
-            }
-        } catch (error: any) {
-            throw error.response?.data || { message: 'Registration failed' };
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await axios.post('/logout');
-            setIsAuthenticated(false);
-            setUser(null);
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-    };
-
-    if (loading) {
+    if (!sessionChecked) {
         return <div>Loading...</div>;
     }
 
-    if (!isAuthenticated) {
-        return showRegister ? (
-            <Register
-                onRegister={handleRegister}
-                onSwitchToLogin={() => setShowRegister(false)}
-            />
-        ) : (
-            <Login
-                onLogin={handleLogin}
-                onSwitchToRegister={() => setShowRegister(true)}
-            />
-        );
-    }
-
-    return <HelloWorld user={user} onLogout={handleLogout} />;
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route element={<NotRequiredAuth isAuthenticated={isAuthenticated} />}>
+                    {publicRoutes.map((route) => (
+                        <Route key={route.path} path={route.path} element={route.element} />
+                    ))}
+                </Route>
+                <Route
+                    path="/"
+                    element={<RequireAuth isAuthenticated={isAuthenticated} />}
+                >
+                    <Route element={<AutenticatedLayout onLogout={logout} />}>
+                        {privateRoutes.map((route) => (
+                            <Route
+                                key={route.path ?? 'index'}
+                                index={route.index}
+                                path={route.path}
+                                element={route.element}
+                            />
+                        ))}
+                    </Route>
+                </Route>
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to={isAuthenticated ? '/' : '/login'}
+                            replace
+                        />
+                    }
+                />
+            </Routes>
+        </BrowserRouter>
+    );
 }
-// function App() {
-//     return (
-//         <div>
-//             <h1>Hello World</h1>
-//         </div>
-//     );
-// }
-// Export App component for potential use elsewhere
-export default App;
-
-console.log('App component rendered');
 
 const container = document.getElementById('app');
 if (container) {
-    const root = createRoot(container);
-    root.render(<App />);
+    createRoot(container).render(
+        <AuthProvider>
+            <App />
+        </AuthProvider>
+    );
 }
-

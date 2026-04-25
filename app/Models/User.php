@@ -20,5 +20,15 @@ class User extends Model
     {
         $this->attributes['password'] = Hash::make($value);
     }
+    
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }
 
